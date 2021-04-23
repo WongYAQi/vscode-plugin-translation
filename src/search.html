@@ -1,0 +1,86 @@
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <meta http-equiv="Content-Security-Policy">
+  </head>
+  <body>
+    <div id='app'>
+      <el-container class='container'>
+        <el-header>
+          <header style='display: inline-block;'>
+            <el-input v-model='filter' />
+          </header>
+          <el-button v-on:click='handleClick'>查询</el-button>
+        </el-header>
+        <el-main>
+          <div class='content'>
+            <el-tree :data='treeData'>
+
+            </el-tree>
+          </div>
+        </el-main>
+      </el-container>
+    </div>
+  </body>
+  <script>
+    if (acquireVsCodeApi) var vscode = acquireVsCodeApi()
+    var app = new Vue({
+      el: '#app',
+      data: {
+        filter: '',
+        data: [{
+          fileName: 'package.json',
+          lineText: ` * 获取词条，从 T('aaa', aaaa) 或者 T("asd", asdasd) 中拿到词条部`,
+          posStart: 10,
+          posEnd: 15
+        }],
+        treeData: []
+      },
+      created () {
+        var parents = [...new Set(this.data.map(o => o.fileName))]
+        window.addEventListener('message', evt => {
+          var message = evt.data
+          console.log(message.command, message.value)
+          if (message.command === 'searchResult') {
+            console.log(message.value)
+            this.treeData = message.value.map(o => {
+              return {
+                label: o
+              }
+            })
+          }
+        })
+      },
+      methods: {
+        handleClick () {
+          if (vscode) {
+            vscode.postMessage({
+              command: 'search',
+              value: this.filter
+            })
+          }
+        }
+      }
+    })
+  </script>
+  <style>
+    html,body{
+      padding: 0;
+      margin: 0;
+    }
+    .container{
+      height: 100vh;
+      background-color: #1e1e1e;
+    }
+    .content{
+      height: 100%;
+      border: 1px solid #999;
+    }
+    .el-input{
+      width: 200px;
+      display: inline-block;
+    }
+  </style>
+</html>
