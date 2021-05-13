@@ -8,16 +8,27 @@
   <body>
     <div id='app'>
       <el-container class='container'>
-        <el-header>
+        <el-header height='30px'>
           <header style='display: inline-block;'>
-            <el-input v-model='filter' />
+            <el-input size='mini' v-model='filter' />
           </header>
-          <el-button v-on:click='handleClick'>查询</el-button>
+          <el-button size='mini' v-on:click='handleClick'>查询</el-button>
         </el-header>
         <el-main>
           <div class='content'>
-            <el-tree :data='treeData'>
-
+            <el-tree :data='treeData'
+              @node-click='handleNodeClick'
+            >
+              <div slot-scope='Scope' class='custom-tree-node'>
+                <p class='preview'>
+                  <span>{{ Scope.data.before }} </span>
+                  <strong>{{ Scope.data.label }}</strong>
+                  <span>{{ Scope.data.after }}</span>
+                </p>
+                <p class='translation'>
+                  <span>{{ Scope.data.translation }}</span>
+                </p>
+              </div>
             </el-tree>
           </div>
         </el-main>
@@ -42,14 +53,9 @@
         var parents = [...new Set(this.data.map(o => o.fileName))]
         window.addEventListener('message', evt => {
           var message = evt.data
-          console.log(message.command, message.value)
           if (message.command === 'searchResult') {
             console.log(message.value)
-            this.treeData = message.value.map(o => {
-              return {
-                label: o
-              }
-            })
+            this.treeData = message.value
           }
         })
       },
@@ -59,6 +65,14 @@
             vscode.postMessage({
               command: 'search',
               value: this.filter
+            })
+          }
+        },
+        handleNodeClick (data, node, vnode) {
+          if (vscode && data.line) {
+            vscode.postMessage({
+              command: 'jump',
+              value: JSON.stringify(data)
             })
           }
         }
@@ -72,7 +86,7 @@
     }
     .container{
       height: 100vh;
-      background-color: #1e1e1e;
+      /* background-color: #1e1e1e; */
     }
     .content{
       height: 100%;
@@ -81,6 +95,18 @@
     .el-input{
       width: 200px;
       display: inline-block;
+    }
+    .custom-tree-node{
+      display: flex;
+      flex: 1;
+    }
+    .custom-tree-node .preview, .custom-tree-node .translation{
+      flex: 1;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: 100%;
+      white-space: nowrap;
+      margin: 0 10px;
     }
   </style>
 </html>

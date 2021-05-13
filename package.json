@@ -7,13 +7,17 @@
 	"engines": {
 		"vscode": "^1.55.0"
 	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/WongYAQi/vscode-plugin-translation.git"
+	},
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
 		"*"
 	],
-	"main": "./out/extension.js",
+	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
@@ -52,6 +56,7 @@
 		"webpack-cli": "^4.6.0"
 	},
 	"dependencies": {
+		"html-webpack-plugin": "^5.3.1",
 		"mongodb": "^3.6.6"
 	}
 }
